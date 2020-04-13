@@ -5,6 +5,7 @@ namespace Phpactor\Extension\Completion;
 use Phpactor\Completion\Core\ChainCompletor;
 use Phpactor\Completion\Core\ChainSignatureHelper;
 use Phpactor\Completion\Core\Completor\DedupeCompletor;
+use Phpactor\Completion\Core\Completor\LimitingCompletor;
 use Phpactor\Completion\Core\Formatter\ObjectFormatter;
 use Phpactor\Completion\Core\TypedCompletorRegistry;
 use Phpactor\Container\Extension;
@@ -22,12 +23,20 @@ class CompletionExtension implements Extension
     public const KEY_COMPLETOR_TYPES = 'types';
     public const SERVICE_SIGNATURE_HELPER = 'completion.handler.signature_helper';
     public const TAG_SIGNATURE_HELPER = 'language_server_completion.handler.signature_help';
+    public const PARAM_DEDUPE = 'completion.dedupe';
+    public const PARAM_DEDUPE_MATCH_SHORT_DESCRIPTION = 'completion.dedupe_match_short_description';
+    public const PARAM_LIMIT = 'completion.limit';
 
     /**
      * {@inheritDoc}
      */
     public function configure(Resolver $schema)
     {
+        $schema->setDefaults([
+            self::PARAM_DEDUPE => true,
+            self::PARAM_DEDUPE_MATCH_SHORT_DESCRIPTION => true,
+            self::PARAM_LIMIT => 32,
+        ]);
     }
 
     /**
@@ -54,9 +63,19 @@ class CompletionExtension implements Extension
 
             $mapped = [];
             foreach ($completors as $type => $completors) {
-                $mapped[(string)$type] = new DedupeCompletor(
-                    new ChainCompletor($completors)
-                );
+                $completors = new ChainCompletor($completors);
+                if ($container->getParameter(self::PARAM_DEDUPE)) {
+                    $completors = new DedupeCompletor(
+                        $completors,
+                        $container->getParameter(self::PARAM_DEDUPE_MATCH_SHORT_DESCRIPTION)
+                    );
+                }
+
+                if ($limit = $container->getParameter(self::PARAM_LIMIT)) {
+                    $completors = new LimitingCompletor($completors, $limit);
+                }
+
+                $mapped[(string)$type] = $completors;
             }
 
             return new TypedCompletorRegistry($mapped);
