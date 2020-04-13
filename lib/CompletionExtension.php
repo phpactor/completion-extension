@@ -2,7 +2,9 @@
 
 namespace Phpactor\Extension\Completion;
 
+use Phpactor\Completion\Core\ChainCompletor;
 use Phpactor\Completion\Core\ChainSignatureHelper;
+use Phpactor\Completion\Core\Completor\DedupeCompletor;
 use Phpactor\Completion\Core\Formatter\ObjectFormatter;
 use Phpactor\Completion\Core\TypedCompletor;
 use Phpactor\Completion\Core\TypedCompletorRegistry;
@@ -19,8 +21,8 @@ class CompletionExtension implements Extension
     public const SERVICE_FORMATTER = 'completion.formatter';
     public const SERVICE_REGISTRY = 'completion.registry';
     public const KEY_COMPLETOR_TYPES = 'types';
-    const SERVICE_SIGNATURE_HELPER = 'completion.handler.signature_helper';
-    const TAG_SIGNATURE_HELPER = 'language_server_completion.handler.signature_help';
+    public const SERVICE_SIGNATURE_HELPER = 'completion.handler.signature_helper';
+    public const TAG_SIGNATURE_HELPER = 'language_server_completion.handler.signature_help';
 
     /**
      * {@inheritDoc}
@@ -42,10 +44,23 @@ class CompletionExtension implements Extension
         $container->register(self::SERVICE_REGISTRY, function (Container $container) {
             $completors = [];
             foreach ($container->getServiceIdsForTag(self::TAG_COMPLETOR) as $serviceId => $attrs) {
-                $completors[] = new TypedCompletor($container->get($serviceId), $attrs[self::KEY_COMPLETOR_TYPES] ?? ['php']);
+                $types = $attrs[self::KEY_COMPLETOR_TYPES] ?? ['php'];
+                foreach ($types as $type) {
+                    if (!isset($completors[$type])) {
+                        $completors[$type] = [];
+                    }
+                    $completors[$type][] = $container->get($serviceId);
+                }
             }
 
-            return new TypedCompletorRegistry($completors);
+            $mapped = [];
+            foreach ($completors as $type => $completors) {
+                $mapped[$type] = new DedupeCompletor(
+                    new ChainCompletor($completors)
+                );
+            }
+
+            return new TypedCompletorRegistry($mapped);
         });
 
         $container->register(self::SERVICE_FORMATTER, function (Container $container) {
