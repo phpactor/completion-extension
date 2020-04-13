@@ -6,7 +6,6 @@ use Phpactor\Completion\Core\ChainCompletor;
 use Phpactor\Completion\Core\ChainSignatureHelper;
 use Phpactor\Completion\Core\Completor\DedupeCompletor;
 use Phpactor\Completion\Core\Formatter\ObjectFormatter;
-use Phpactor\Completion\Core\TypedCompletor;
 use Phpactor\Completion\Core\TypedCompletorRegistry;
 use Phpactor\Container\Extension;
 use Phpactor\Container\ContainerBuilder;
@@ -39,7 +38,7 @@ class CompletionExtension implements Extension
         $this->registerCompletion($container);
     }
 
-    private function registerCompletion(ContainerBuilder $container)
+    private function registerCompletion(ContainerBuilder $container): void
     {
         $container->register(self::SERVICE_REGISTRY, function (Container $container) {
             $completors = [];
@@ -55,7 +54,7 @@ class CompletionExtension implements Extension
 
             $mapped = [];
             foreach ($completors as $type => $completors) {
-                $mapped[$type] = new DedupeCompletor(
+                $mapped[(string)$type] = new DedupeCompletor(
                     new ChainCompletor($completors)
                 );
             }
