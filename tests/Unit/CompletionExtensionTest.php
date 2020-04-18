@@ -72,7 +72,7 @@ class CompletionExtensionTest extends TestCase
         $object = new stdClass();
         $this->formatter1->canFormat($object)->shouldBeCalledTimes(3)->willReturn(false);
 
-        $formatter = $this->createContainer()->get(CompletionExtension::SERVICE_FORMATTER);
+        $formatter = $this->createContainer()->get(CompletionExtension::SERVICE_SHORT_DESC_FORMATTER);
         $canFormat = $formatter->canFormat($object);
         $this->assertEquals(false, $canFormat);
     }
@@ -109,19 +109,26 @@ class CompletionExtensionTest extends TestCase
 
         $builder->register('formatter', function () {
             return $this->formatter1->reveal();
-        }, [ CompletionExtension::TAG_FORMATTER => []]);
+        }, [ CompletionExtension::TAG_SHORT_DESC_FORMATTER => []]);
 
         $builder->register('signarure_helper', function () {
             return $this->signatureHelper1->reveal();
         }, [ CompletionExtension::TAG_SIGNATURE_HELPER => []]);
 
-        $builder->register('formatter_array', function () {
+        $builder->register('short_desc_formatter_array', function () {
             return [
                 $this->formatter1->reveal(),
                 $this->formatter1->reveal(),
             ];
-        }, [ CompletionExtension::TAG_FORMATTER => []]);
-        
+        }, [ CompletionExtension::TAG_SHORT_DESC_FORMATTER => []]);
+
+        $builder->register('snippet_formatter_array', function () {
+            return [
+                $this->formatter1->reveal(),
+                $this->formatter1->reveal(),
+            ];
+        }, [ CompletionExtension::TAG_SNIPPET_FORMATTER => []]);
+
         $extension->load($builder);
 
         $extension = new LoggingExtension();
