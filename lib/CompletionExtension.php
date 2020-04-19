@@ -17,8 +17,10 @@ use Phpactor\Container\Container;
 class CompletionExtension implements Extension
 {
     public const TAG_COMPLETOR = 'completion.completor';
-    public const TAG_FORMATTER = 'completion.formatter';
-    public const SERVICE_FORMATTER = 'completion.formatter';
+    public const TAG_SHORT_DESC_FORMATTER = 'completion.short_desc.formatter';
+    public const SERVICE_SHORT_DESC_FORMATTER = 'completion.short_desc.formatter';
+    public const TAG_SNIPPET_FORMATTER = 'completion.snippet.formatter';
+    public const SERVICE_SNIPPET_FORMATTER = 'completion.snippet.formatter';
     public const SERVICE_REGISTRY = 'completion.registry';
     public const KEY_COMPLETOR_TYPES = 'types';
     public const SERVICE_SIGNATURE_HELPER = 'completion.handler.signature_helper';
@@ -81,9 +83,23 @@ class CompletionExtension implements Extension
             return new TypedCompletorRegistry($mapped);
         });
 
-        $container->register(self::SERVICE_FORMATTER, function (Container $container) {
+        $container->register(self::SERVICE_SHORT_DESC_FORMATTER, function (Container $container) {
             $formatters = [];
-            foreach (array_keys($container->getServiceIdsForTag(self::TAG_FORMATTER)) as $serviceId) {
+            foreach (array_keys($container->getServiceIdsForTag(self::TAG_SHORT_DESC_FORMATTER)) as $serviceId) {
+                $taggedFormatters = $container->get($serviceId);
+                $taggedFormatters = is_array($taggedFormatters) ? $taggedFormatters : [ $taggedFormatters ];
+
+                foreach ($taggedFormatters as $taggedFormatter) {
+                    $formatters[] = $taggedFormatter;
+                }
+            }
+
+            return new ObjectFormatter($formatters);
+        });
+
+        $container->register(self::SERVICE_SNIPPET_FORMATTER, function (Container $container) {
+            $formatters = [];
+            foreach (array_keys($container->getServiceIdsForTag(self::TAG_SNIPPET_FORMATTER)) as $serviceId) {
                 $taggedFormatters = $container->get($serviceId);
                 $taggedFormatters = is_array($taggedFormatters) ? $taggedFormatters : [ $taggedFormatters ];
 
