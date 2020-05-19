@@ -37,7 +37,7 @@ class CompletionExtension implements Extension
         $schema->setDefaults([
             self::PARAM_DEDUPE => true,
             self::PARAM_DEDUPE_MATCH_SHORT_DESCRIPTION => true,
-            self::PARAM_LIMIT => 32,
+            self::PARAM_LIMIT => null,
         ]);
     }
 
