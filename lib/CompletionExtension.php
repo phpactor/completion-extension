@@ -42,6 +42,11 @@ class CompletionExtension implements Extension
             self::PARAM_DEDUPE_MATCH_SHORT_DESCRIPTION => true,
             self::PARAM_LIMIT => null,
         ]);
+        $schema->setDescriptions([
+            self::PARAM_DEDUPE => 'If results should be de-duplicated',
+            self::PARAM_DEDUPE_MATCH_SHORT_DESCRIPTION => 'If ``' . self::PARAM_DEDUPE . '``, match on completion description intead of name',
+            self::PARAM_LIMIT => 'Sets a limit on the number of completion suggestions for any request',
+        ]);
     }
 
     /**
