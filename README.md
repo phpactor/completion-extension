@@ -1,4 +1,4 @@
 Phactor Completion Extension
 ============================
 
-[![Build Status](https://travis-ci.org/phpactor/completion-extension.svg?branch=master)](https://travis-ci.org/phpactor/completion-extension)
+![CI](https://github.com/phpactor/completion-extension/workflows/CI/badge.svg)
