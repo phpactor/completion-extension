@@ -39,7 +39,7 @@ class CompletionExtensionTest extends TestCase
      */
     private $signatureHelper1;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->completor1 = $this->prophesize(Completor::class);
         $this->signatureHelper1 = $this->prophesize(SignatureHelper::class);
