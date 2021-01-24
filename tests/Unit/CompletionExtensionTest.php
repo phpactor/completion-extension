@@ -46,7 +46,7 @@ class CompletionExtensionTest extends TestCase
         $this->formatter1 = $this->prophesize(Formatter::class);
     }
 
-    public function testCreatesChainedCompletor()
+    public function testCreatesChainedCompletor(): void
     {
         $document = TextDocumentBuilder::create(self::EXAMPLE_SOURCE)->build();
         $this->completor1->complete(
@@ -67,7 +67,7 @@ class CompletionExtensionTest extends TestCase
         $this->assertEquals(self::EXAMPLE_SUGGESTION, $results[0]->name());
     }
 
-    public function testCreatesFormatterFromEitherSingleFormatterOrArray()
+    public function testCreatesFormatterFromEitherSingleFormatterOrArray(): void
     {
         $object = new stdClass();
         $this->formatter1->canFormat($object)->shouldBeCalledTimes(3)->willReturn(false);
@@ -77,7 +77,7 @@ class CompletionExtensionTest extends TestCase
         $this->assertEquals(false, $canFormat);
     }
 
-    public function testCreatesSignatureHelper()
+    public function testCreatesSignatureHelper(): void
     {
         $document = TextDocumentBuilder::create(self::EXAMPLE_SOURCE)->build();
         $this->signatureHelper1->signatureHelp(
